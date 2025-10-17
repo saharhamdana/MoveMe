@@ -1,0 +1,100 @@
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Connexion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ========================================== -->
+<!-- CONTENU PRINCIPAL -->
+<!-- ========================================== -->
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div class="login-container">
+    
+    <!-- ========================================== -->
+    <!-- LOGO / IMAGE -->
+    <!-- ========================================== -->
+    <div class="logo-container">
+      <ion-icon name="car-sport" class="app-logo"></ion-icon>
+      <h1>MoveMe</h1>
+      <p>Votre solution de transport</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FORMULAIRE DE CONNEXION -->
+    <!-- ========================================== -->
+    <ion-card class="login-card">
+      <ion-card-content>
+        
+        <!-- Champ Email -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            type="email"
+            placeholder="Email"
+            [(ngModel)]="email"
+            [disabled]="isLoading"
+            autocomplete="email"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Champ Mot de passe -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Mot de passe"
+            [(ngModel)]="password"
+            [disabled]="isLoading"
+            autocomplete="current-password"
+          ></ion-input>
+          <ion-icon 
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+            slot="end" 
+            (click)="togglePasswordVisibility()"
+            class="password-toggle"
+          ></ion-icon>
+        </ion-item>
+
+        <!-- Lien Mot de passe oublié -->
+        <div class="forgot-password">
+          <ion-text color="primary" (click)="goToForgotPassword()">
+            <small>Mot de passe oublié ?</small>
+          </ion-text>
+        </div>
+
+        <!-- Bouton Connexion -->
+        <ion-button 
+          expand="block" 
+          (click)="login()" 
+          [disabled]="isLoading"
+          class="login-button"
+        >
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <span *ngIf="!isLoading">Se connecter</span>
+        </ion-button>
+
+        <!-- Séparateur -->
+        <div class="divider">
+          <span>ou</span>
+        </div>
+
+        <!-- Lien vers l'inscription -->
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          (click)="goToRegister()"
+          [disabled]="isLoading"
+        >
+          Créer un compte
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</ion-content>

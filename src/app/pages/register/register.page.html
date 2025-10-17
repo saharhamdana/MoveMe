@@ -1,0 +1,152 @@
+<!-- ========================================== -->
+<!-- HEADER AVEC BOUTON RETOUR -->
+<!-- ========================================== -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Créer un compte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ========================================== -->
+<!-- CONTENU PRINCIPAL -->
+<!-- ========================================== -->
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div class="register-container">
+
+    <!-- ========================================== -->
+    <!-- FORMULAIRE D'INSCRIPTION -->
+    <!-- ========================================== -->
+    <ion-card class="register-card">
+      <ion-card-content>
+        
+        <!-- Sélection du rôle -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="floating">Je suis</ion-label>
+          <ion-select 
+            [(ngModel)]="role" 
+            [disabled]="isLoading"
+            interface="action-sheet"
+          >
+            <ion-select-option value="passenger">Passager</ion-select-option>
+            <ion-select-option value="driver">Chauffeur</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Champ Nom complet -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            type="text"
+            placeholder="Nom complet"
+            [(ngModel)]="displayName"
+            [disabled]="isLoading"
+            autocomplete="name"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Champ Email -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            type="email"
+            placeholder="Email"
+            [(ngModel)]="email"
+            [disabled]="isLoading"
+            autocomplete="email"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Champ Téléphone -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            type="tel"
+            placeholder="Téléphone (ex: +216 12345678)"
+            [(ngModel)]="phoneNumber"
+            [disabled]="isLoading"
+            autocomplete="tel"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Champ Mot de passe -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Mot de passe"
+            [(ngModel)]="password"
+            [disabled]="isLoading"
+            autocomplete="new-password"
+          ></ion-input>
+          <ion-icon 
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+            slot="end" 
+            (click)="togglePasswordVisibility()"
+            class="password-toggle"
+          ></ion-icon>
+        </ion-item>
+
+        <!-- Champ Confirmation mot de passe -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            placeholder="Confirmer le mot de passe"
+            [(ngModel)]="confirmPassword"
+            [disabled]="isLoading"
+            autocomplete="new-password"
+          ></ion-input>
+          <ion-icon 
+            [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'" 
+            slot="end" 
+            (click)="toggleConfirmPasswordVisibility()"
+            class="password-toggle"
+          ></ion-icon>
+        </ion-item>
+
+        <!-- Message d'information pour chauffeur -->
+        <div *ngIf="role === 'driver'" class="info-message">
+          <ion-text color="primary">
+            <small>
+              <ion-icon name="information-circle-outline"></ion-icon>
+              En tant que chauffeur, vous devrez fournir des documents supplémentaires.
+            </small>
+          </ion-text>
+        </div>
+
+        <!-- Bouton Inscription -->
+        <ion-button 
+          expand="block" 
+          (click)="register()" 
+          [disabled]="isLoading"
+          class="register-button"
+        >
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <span *ngIf="!isLoading">Créer mon compte</span>
+        </ion-button>
+
+        <!-- Séparateur -->
+        <div class="divider">
+          <span>Déjà inscrit ?</span>
+        </div>
+
+        <!-- Lien vers connexion -->
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          (click)="goToLogin()"
+          [disabled]="isLoading"
+        >
+          Se connecter
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</ion-content>
