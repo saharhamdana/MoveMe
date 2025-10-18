@@ -139,11 +139,10 @@ export class RegisterPage {
       // Redirection selon le rôle
       if (user.role === 'passenger') {
         this.router.navigate(['/passenger/tabs/home']);
-      } else if (user.role === 'driver') {
-        // Pour le chauffeur, rediriger vers la config du véhicule
-        this.router.navigate(['/driver/vehicle-setup']);
-      }
-      
+     } else if (user.role === 'driver') {
+  // Pour le chauffeur, rediriger vers l'accueil
+  this.router.navigate(['/driver/tabs/home']);
+}
     } catch (error: any) {
       // Fermer le loader
       await loading.dismiss();

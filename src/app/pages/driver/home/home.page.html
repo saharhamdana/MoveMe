@@ -1,0 +1,196 @@
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
+<ion-header>
+  <ion-toolbar [color]="isOnline ? 'success' : 'medium'">
+    <ion-title>
+      {{ isOnline ? '🟢 En ligne' : '🔴 Hors ligne' }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ========================================== -->
+<!-- CONTENU -->
+<!-- ========================================== -->
+<ion-content class="ion-padding">
+
+  <div *ngIf="currentUser">
+
+    <!-- ========================================== -->
+    <!-- CARTE STATUT -->
+    <!-- ========================================== -->
+    <ion-card class="status-card">
+      <ion-card-header>
+        <ion-card-title>Votre statut</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <!-- Switch Online/Offline -->
+        <div class="status-toggle">
+          <div>
+            <h3>{{ isOnline ? 'En ligne' : 'Hors ligne' }}</h3>
+            <p>
+              {{ isOnline 
+                ? 'Vous recevez des demandes de courses' 
+                : 'Activez pour recevoir des courses' 
+              }}
+            </p>
+          </div>
+          <ion-toggle 
+            [(ngModel)]="isOnline" 
+            (ionChange)="toggleOnlineStatus($event)"
+            [color]="isOnline ? 'success' : 'medium'"
+          ></ion-toggle>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- INFORMATIONS DU CHAUFFEUR -->
+    <!-- ========================================== -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Bienvenue {{ currentUser.displayName }} 👋</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <ion-list lines="none">
+          
+          <!-- Email -->
+          <ion-item>
+            <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <p>Email</p>
+              <h3>{{ currentUser.email }}</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Téléphone -->
+          <ion-item>
+            <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <p>Téléphone</p>
+              <h3>{{ currentUser.phoneNumber }}</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Note -->
+          <ion-item>
+            <ion-icon name="star-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>
+              <p>Note moyenne</p>
+              <h3>⭐ {{ currentUser.rating }}/5</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Courses -->
+          <ion-item>
+            <ion-icon name="car-sport-outline" slot="start" color="success"></ion-icon>
+            <ion-label>
+              <p>Courses effectuées</p>
+              <h3>{{ currentUser.totalRides }} courses</h3>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- STATISTIQUES -->
+    <!-- ========================================== -->
+    <ion-card *ngIf="driverData">
+      <ion-card-header>
+        <ion-card-title>Statistiques</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <div class="stats-grid">
+          
+          <!-- Gains totaux -->
+          <div class="stat-item">
+            <ion-icon name="cash-outline" color="success"></ion-icon>
+            <div>
+              <h4>{{ driverData.earnings?.totalEarnings || 0 }} DT</h4>
+              <p>Gains totaux</p>
+            </div>
+          </div>
+
+          <!-- Gains hebdomadaires -->
+          <div class="stat-item">
+            <ion-icon name="cash-outline" color="primary"></ion-icon>
+            <div>
+              <h4>{{ driverData.earnings?.weeklyEarnings || 0 }} DT</h4>
+              <p>Cette semaine</p>
+            </div>
+          </div>
+
+          <!-- Courses -->
+          <div class="stat-item">
+            <ion-icon name="car-sport-outline" color="tertiary"></ion-icon>
+            <div>
+              <h4>{{ driverData.earnings?.totalRides || 0 }}</h4>
+              <p>Courses total</p>
+            </div>
+          </div>
+
+          <!-- Courses hebdomadaires -->
+          <div class="stat-item">
+            <ion-icon name="time-outline" color="warning"></ion-icon>
+            <div>
+              <h4>{{ driverData.earnings?.weeklyRides || 0 }}</h4>
+              <p>Cette semaine</p>
+            </div>
+          </div>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS RAPIDES -->
+    <!-- ========================================== -->
+    <div class="actions">
+      
+      <!-- Voir demandes (si en ligne) -->
+      <ion-button 
+        *ngIf="isOnline" 
+        expand="block" 
+        color="primary"
+        (click)="viewRideRequests()"
+      >
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        Demandes de courses ({{ pendingRides }})
+      </ion-button>
+
+      <!-- Message si hors ligne -->
+      <ion-card *ngIf="!isOnline" class="offline-card">
+        <ion-card-content>
+          <ion-text color="medium">
+            <p>Activez votre statut en ligne pour commencer à recevoir des demandes de courses.</p>
+          </ion-text>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- BOUTON DÉCONNEXION -->
+    <!-- ========================================== -->
+    <ion-button 
+      expand="block" 
+      color="danger" 
+      fill="outline"
+      (click)="logout()"
+      class="logout-btn"
+    >
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Déconnexion
+    </ion-button>
+
+  </div>
+
+</ion-content>

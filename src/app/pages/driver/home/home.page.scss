@@ -1,0 +1,113 @@
+// ==========================================
+// CARTE STATUT
+// ==========================================
+.status-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+// ==========================================
+// TOGGLE STATUT
+// ==========================================
+.status-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+
+  ion-toggle {
+    --handle-width: 28px;
+    --handle-height: 28px;
+  }
+}
+
+// ==========================================
+// GRILLE DE STATISTIQUES
+// ==========================================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+
+  ion-icon {
+    font-size: 32px;
+  }
+
+  div {
+    h4 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// ==========================================
+// ACTIONS
+// ==========================================
+.actions {
+  margin: 20px 0;
+}
+
+// ==========================================
+// CARTE HORS LIGNE
+// ==========================================
+.offline-card {
+  border: 2px dashed var(--ion-color-medium);
+  background: transparent;
+
+  ion-card-content {
+    text-align: center;
+    
+    p {
+      margin: 0;
+      line-height: 1.6;
+    }
+  }
+}
+
+// ==========================================
+// BOUTON DÉCONNEXION
+// ==========================================
+.logout-btn {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

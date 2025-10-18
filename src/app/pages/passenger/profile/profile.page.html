@@ -1,0 +1,142 @@
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Profil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ========================================== -->
+<!-- CONTENU -->
+<!-- ========================================== -->
+<ion-content>
+
+  <div *ngIf="currentUser" class="profile-container">
+
+    <!-- ========================================== -->
+    <!-- CARTE PROFIL -->
+    <!-- ========================================== -->
+    <ion-card class="profile-card">
+      <ion-card-content>
+        
+        <!-- Avatar et nom -->
+        <div class="profile-header">
+          <ion-avatar class="profile-avatar">
+            <img *ngIf="currentUser.photoURL" [src]="currentUser.photoURL" />
+            <div *ngIf="!currentUser.photoURL" class="avatar-placeholder">
+              {{ getInitials(currentUser.displayName) }}
+            </div>
+          </ion-avatar>
+          
+          <div class="profile-info">
+            <h2>{{ currentUser.displayName }}</h2>
+            <ion-text color="medium">
+              <p>{{ currentUser.role === 'passenger' ? 'Passager' : 'Chauffeur' }}</p>
+            </ion-text>
+            
+            <!-- Note -->
+            <div class="rating">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>{{ currentUser.rating }}/5</span>
+              <ion-text color="medium">
+                <small>({{ currentUser.totalRides }} courses)</small>
+              </ion-text>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton Modifier -->
+        <ion-button expand="block" fill="outline" (click)="editProfile()">
+          Modifier le profil
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- INFORMATIONS PERSONNELLES -->
+    <!-- ========================================== -->
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Informations personnelles</ion-label>
+      </ion-list-header>
+
+      <!-- Email -->
+      <ion-item>
+        <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>
+          <h3>Email</h3>
+          <p>{{ currentUser.email }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Téléphone -->
+      <ion-item>
+        <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>
+          <h3>Téléphone</h3>
+          <p>{{ currentUser.phoneNumber }}</p>
+        </ion-label>
+      </ion-item>
+
+    </ion-list>
+
+    <!-- ========================================== -->
+    <!-- PARAMÈTRES -->
+    <!-- ========================================== -->
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Paramètres</ion-label>
+      </ion-list-header>
+
+      <!-- Paramètres -->
+      <ion-item button (click)="openSettings()">
+        <ion-icon name="settings-outline" slot="start"></ion-icon>
+        <ion-label>Paramètres</ion-label>
+      </ion-item>
+
+      <!-- Aide -->
+      <ion-item button (click)="openHelp()">
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        <ion-label>Aide et support</ion-label>
+      </ion-item>
+
+      <!-- À propos -->
+      <ion-item button (click)="openAbout()">
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        <ion-label>À propos</ion-label>
+      </ion-item>
+
+      <!-- Conditions d'utilisation -->
+      <ion-item button (click)="openTerms()">
+        <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+        <ion-label>Conditions d'utilisation</ion-label>
+      </ion-item>
+
+    </ion-list>
+
+    <!-- ========================================== -->
+    <!-- DÉCONNEXION -->
+    <!-- ========================================== -->
+    <div class="logout-container">
+      <ion-button 
+        expand="block" 
+        color="danger" 
+        (click)="logout()"
+      >
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Se déconnecter
+      </ion-button>
+    </div>
+
+    <!-- Version de l'app -->
+    <div class="app-version">
+      <ion-text color="medium">
+        <small>MoveMe v1.0.0</small>
+      </ion-text>
+    </div>
+
+  </div>
+
+</ion-content>

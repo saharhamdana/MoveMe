@@ -1,0 +1,127 @@
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Historique</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ========================================== -->
+<!-- CONTENU -->
+<!-- ========================================== -->
+<ion-content>
+  
+  <!-- Rafraîchir en tirant vers le bas -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ========================================== -->
+  <!-- ÉTAT DE CHARGEMENT -->
+  <!-- ========================================== -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement de l'historique...</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- AUCUNE COURSE -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && rides.length === 0" class="empty-state">
+    <ion-icon name="car-outline" class="empty-icon"></ion-icon>
+    <h2>Aucune course pour le moment</h2>
+    <p>Vos courses apparaîtront ici</p>
+    <ion-button routerLink="/passenger/tabs/home" expand="block">
+      Demander une course
+    </ion-button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- LISTE DES COURSES -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && rides.length > 0" class="rides-container">
+    
+    <!-- Boucle sur chaque course -->
+    <ion-card 
+      *ngFor="let ride of rides" 
+      class="ride-card"
+      (click)="viewRideDetails(ride)"
+      button
+    >
+      <!-- En-tête de la carte -->
+      <ion-card-header>
+        <div class="card-header-content">
+          <ion-card-title class="ride-date">
+            {{ formatDate(ride.requestedAt) }}
+          </ion-card-title>
+          <ion-badge [color]="getStatusColor(ride.status)">
+            {{ getStatusText(ride.status) }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <!-- Contenu de la carte -->
+      <ion-card-content>
+        
+        <!-- Départ -->
+        <div class="location-item">
+          <ion-icon name="navigate-outline" color="success"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Départ</small>
+            </ion-text>
+            <p>{{ ride.pickupLocation.address || 'Position de départ' }}</p>
+          </div>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="location-separator"></div>
+
+        <!-- Arrivée -->
+        <div class="location-item">
+          <ion-icon name="location-outline" color="danger"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Arrivée</small>
+            </ion-text>
+            <p>{{ ride.dropoffLocation.address || 'Destination' }}</p>
+          </div>
+        </div>
+
+        <!-- Informations supplémentaires -->
+        <div class="ride-info">
+          
+          <!-- Prix -->
+          <div class="info-item">
+            <ion-icon name="cash-outline" color="primary"></ion-icon>
+            <span>
+              {{ ride.finalPrice || ride.estimatedPrice }} DT
+            </span>
+          </div>
+
+          <!-- Distance -->
+          <div class="info-item">
+            <ion-icon name="navigate-outline" color="primary"></ion-icon>
+            <span>{{ ride.estimatedDistance }} km</span>
+          </div>
+
+          <!-- Note (si course terminée) -->
+          <div class="info-item" *ngIf="ride.rating">
+            <ion-icon name="star-outline" color="warning"></ion-icon>
+            <span>{{ ride.rating }}/5</span>
+          </div>
+        </div>
+
+        <!-- Chauffeur (si assigné) -->
+        <div *ngIf="ride.driverName" class="driver-info">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Chauffeur: {{ ride.driverName }}</span>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</ion-content>

@@ -1,0 +1,201 @@
+// ==========================================
+// ÉTAT DE CHARGEMENT
+// ==========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// ÉTAT VIDE (Aucune course)
+// ==========================================
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  padding: 20px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 80px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    color: var(--ion-color-dark);
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 30px;
+  }
+
+  ion-button {
+    max-width: 300px;
+  }
+}
+
+// ==========================================
+// CONTAINER DES COURSES
+// ==========================================
+.rides-container {
+  padding: 16px;
+}
+
+// ==========================================
+// CARTE DE COURSE
+// ==========================================
+.ride-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ==========================================
+// EN-TÊTE DE LA CARTE
+// ==========================================
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .ride-date {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// ==========================================
+// ÉLÉMENTS DE LOCALISATION
+// ==========================================
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+
+  ion-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    margin-top: 4px;
+  }
+
+  .location-text {
+    flex: 1;
+
+    small {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+// ==========================================
+// SÉPARATEUR ENTRE DÉPART ET ARRIVÉE
+// ==========================================
+.location-separator {
+  width: 2px;
+  height: 20px;
+  background: var(--ion-color-medium);
+  margin-left: 11px;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+// ==========================================
+// INFORMATIONS DE LA COURSE
+// ==========================================
+.ride-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ==========================================
+// INFO CHAUFFEUR
+// ==========================================
+.driver-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-primary);
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .ride-info {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .info-item {
+    flex: 1 1 45%;
+  }
+}

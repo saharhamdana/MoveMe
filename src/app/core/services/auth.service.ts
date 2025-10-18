@@ -11,18 +11,18 @@ import {
   sendPasswordResetEmail
 } from '@angular/fire/auth';
 import { 
-  Firestore, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc,
+  Database,
+  ref,
+  set,
+  get,
+  update,
   serverTimestamp
-} from '@angular/fire/firestore';
+} from '@angular/fire/database';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../../shared/models/interfaces';
 
 // ==========================================
-// SERVICE D'AUTHENTIFICATION
+// SERVICE D'AUTHENTIFICATION - REALTIME DATABASE
 // ==========================================
 @Injectable({
   providedIn: 'root'
@@ -33,18 +33,15 @@ export class AuthService {
   // INJECTION DES DÉPENDANCES
   // ==========================================
   private auth = inject(Auth);
-  private firestore = inject(Firestore);
+  private database = inject(Database); // ✅ Realtime Database
   private router = inject(Router);
   
   // ==========================================
   // ÉTAT DE L'UTILISATEUR (RÉACTIF)
   // ==========================================
-  // BehaviorSubject = permet aux composants de s'abonner
-  // et recevoir les changements en temps réel
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
   
-  // État de chargement
   private isLoadingSubject = new BehaviorSubject<boolean>(true);
   public isLoading$ = this.isLoadingSubject.asObservable();
 
@@ -52,29 +49,26 @@ export class AuthService {
   // CONSTRUCTEUR
   // ==========================================
   constructor() {
-    // Écoute automatiquement les changements d'authentification
     this.initAuthListener();
   }
 
   // ==========================================
-  // GETTER : Utilisateur actuel (synchrone)
+  // GETTER : Utilisateur actuel
   // ==========================================
   get currentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
   // ==========================================
-  // ÉCOUTER LES CHANGEMENTS D'AUTH FIREBASE
+  // ÉCOUTER LES CHANGEMENTS D'AUTH
   // ==========================================
   private initAuthListener(): void {
     onAuthStateChanged(this.auth, async (firebaseUser: FirebaseUser | null) => {
       console.log('🔄 Auth state changed:', firebaseUser?.email);
       
       if (firebaseUser) {
-        // Utilisateur connecté → charger ses données
         await this.loadUserData(firebaseUser.uid);
       } else {
-        // Pas d'utilisateur → reset
         this.currentUserSubject.next(null);
       }
       
@@ -83,21 +77,21 @@ export class AuthService {
   }
 
   // ==========================================
-  // CHARGER LES DONNÉES UTILISATEUR DEPUIS FIRESTORE
+  // CHARGER LES DONNÉES UTILISATEUR
   // ==========================================
   private async loadUserData(uid: string): Promise<void> {
     try {
-      // Référence au document dans Firestore
-      const userDocRef = doc(this.firestore, `users/${uid}`);
-      const userDoc = await getDoc(userDocRef);
+      // ✅ Référence Realtime Database
+      const userRef = ref(this.database, `users/${uid}`);
+      const snapshot = await get(userRef);
       
-      if (userDoc.exists()) {
+      if (snapshot.exists()) {
         const userData = {
-          ...userDoc.data(),
-          uid: userDoc.id,
-          // Convertir les timestamps Firestore en Date
-          createdAt: userDoc.data()['createdAt']?.toDate(),
-          updatedAt: userDoc.data()['updatedAt']?.toDate()
+          ...snapshot.val(),
+          uid: uid,
+          // Convertir les timestamps
+          createdAt: snapshot.val().createdAt ? new Date(snapshot.val().createdAt) : new Date(),
+          updatedAt: snapshot.val().updatedAt ? new Date(snapshot.val().updatedAt) : new Date()
         } as User;
         
         console.log('✅ User data loaded:', userData.displayName);
@@ -133,7 +127,7 @@ export class AuthService {
         displayName: userData.displayName
       });
 
-      // 3. Créer le document utilisateur dans Firestore
+      // 3. Créer le document utilisateur dans Realtime Database
       const newUser: User = {
         uid: firebaseUser.uid,
         email: firebaseUser.email!,
@@ -147,10 +141,11 @@ export class AuthService {
         isActive: true
       };
 
-      const userDocRef = doc(this.firestore, `users/${firebaseUser.uid}`);
-      await setDoc(userDocRef, {
+      // ✅ Sauvegarder dans Realtime Database
+      const userRef = ref(this.database, `users/${firebaseUser.uid}`);
+      await set(userRef, {
         ...newUser,
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp(), // Timestamp du serveur
         updatedAt: serverTimestamp()
       });
 
@@ -175,10 +170,7 @@ export class AuthService {
     try {
       console.log('🔐 Logging in...', email);
       
-      // Authentifier avec Firebase
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
-      
-      // Charger les données
       await this.loadUserData(credential.user.uid);
       
       const user = this.currentUserSubject.value;
@@ -186,7 +178,6 @@ export class AuthService {
         throw new Error('Unable to load user data');
       }
 
-      // Vérifier que le compte est actif
       if (!user.isActive) {
         await this.logout();
         throw new Error('Account disabled');
@@ -208,7 +199,6 @@ export class AuthService {
       const currentUser = this.currentUserSubject.value;
       console.log('👋 Logging out...');
       
-      // Si chauffeur, le mettre hors ligne
       if (currentUser?.role === 'driver') {
         await this.setDriverOffline(currentUser.uid);
       }
@@ -239,9 +229,9 @@ export class AuthService {
   // CRÉER LE PROFIL CHAUFFEUR
   // ==========================================
   private async createDriverProfile(uid: string): Promise<void> {
-    const driverDocRef = doc(this.firestore, `drivers/${uid}`);
+    const driverRef = ref(this.database, `drivers/${uid}`);
     
-    await setDoc(driverDocRef, {
+    await set(driverRef, {
       userId: uid,
       isOnline: false,
       status: 'offline',
@@ -266,8 +256,8 @@ export class AuthService {
   // ==========================================
   private async setDriverOffline(uid: string): Promise<void> {
     try {
-      const driverDocRef = doc(this.firestore, `drivers/${uid}`);
-      await updateDoc(driverDocRef, {
+      const driverRef = ref(this.database, `drivers/${uid}`);
+      await update(driverRef, {
         isOnline: false,
         status: 'offline',
         updatedAt: serverTimestamp()

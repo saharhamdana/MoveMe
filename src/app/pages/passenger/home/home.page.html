@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Accueil Passager</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <ion-card *ngIf="currentUser">
+    <ion-card-content>
+      <h2>Bienvenue {{ currentUser.displayName }} ! 👋</h2>
+      <p>Email: {{ currentUser.email }}</p>
+      <p>Téléphone: {{ currentUser.phoneNumber }}</p>
+      <p>Rôle: <strong>{{ currentUser.role }}</strong></p>
+      <p>Note: ⭐ {{ currentUser.rating }}/5</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-icon name="car-sport-outline" class="big-icon"></ion-icon>
+      <h3>Demander une course</h3>
+      <p>Fonctionnalité à venir...</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button expand="block" color="danger" (click)="logout()">
+    <ion-icon name="log-out-outline" slot="start"></ion-icon>
+    Déconnexion
+  </ion-button>
+
+</ion-content>

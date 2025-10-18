@@ -7,7 +7,7 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 // ==========================================
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideDatabase, getDatabase } from '@angular/fire/database'; // ✅ REALTIME DATABASE
 import { provideStorage, getStorage } from '@angular/fire/storage';
 
 // ==========================================
@@ -26,12 +26,12 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     
     // ==========================================
-    // AJOUT: HTTP CLIENT
+    // HTTP CLIENT
     // ==========================================
     provideHttpClient(),
     
     // ==========================================
-    // AJOUT: CONFIGURATION FIREBASE
+    // CONFIGURATION FIREBASE
     // ==========================================
     // Initialise Firebase avec tes credentials
     provideFirebaseApp(() => initializeApp(environment.firebase)),
@@ -39,8 +39,8 @@ bootstrapApplication(AppComponent, {
     // Active l'authentification
     provideAuth(() => getAuth()),
     
-    // Active Firestore (base de données)
-    provideFirestore(() => getFirestore()),
+    // ✅ Active Realtime Database (au lieu de Firestore)
+    provideDatabase(() => getDatabase()),
     
     // Active Storage (pour les images)
     provideStorage(() => getStorage()),
