@@ -22,9 +22,10 @@
         
         <!-- Avatar et nom -->
         <div class="profile-header">
-          <ion-avatar class="profile-avatar">
-            <img *ngIf="currentUser.photoURL" [src]="currentUser.photoURL" />
-            <div *ngIf="!currentUser.photoURL" class="avatar-placeholder">
+          <ion-avatar class="profile-avatar" (click)="changeProfilePicture()">
+            <!-- Utilise la photo locale si disponible, sinon Firebase, sinon initials -->
+            <img *ngIf="getProfilePhotoURL()" [src]="getProfilePhotoURL()" />
+            <div *ngIf="!getProfilePhotoURL()" class="avatar-placeholder">
               {{ getInitials(currentUser.displayName) }}
             </div>
           </ion-avatar>
@@ -133,7 +134,7 @@
     <!-- Version de l'app -->
     <div class="app-version">
       <ion-text color="medium">
-        <small>MoveMe v1.0.0</small>
+        <small>{{ getAppVersion() }}</small>
       </ion-text>
     </div>
 

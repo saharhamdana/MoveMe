@@ -13,10 +13,23 @@ import {
   IonCardContent,
   IonButton,
   IonIcon,
-  IonText
+  IonText,
+  IonList,
+  IonItem,
+  IonLabel
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { carSportOutline, logOutOutline } from 'ionicons/icons';
+import { 
+  carSportOutline, 
+  logOutOutline,
+  addOutline,
+  timeOutline,
+  cashOutline,
+  starOutline,
+  callOutline,
+  bulbOutline,
+  chevronForwardOutline
+} from 'ionicons/icons';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/interfaces';
@@ -35,7 +48,10 @@ import { User } from '../../../shared/models/interfaces';
     IonCard,
     IonCardContent,
     IonButton,
-    IonIcon
+    IonIcon,
+    IonList,
+    IonItem,
+    IonLabel
   ]
 })
 export class HomePage implements OnInit {
@@ -47,7 +63,17 @@ export class HomePage implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
-    addIcons({ carSportOutline, logOutOutline });
+    addIcons({ 
+      carSportOutline, 
+      logOutOutline,
+      addOutline,
+      timeOutline,
+      cashOutline,
+      starOutline,
+      callOutline,
+      bulbOutline,
+      chevronForwardOutline,
+    });
   }
 
   ngOnInit() {
@@ -57,7 +83,16 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Déconnexion
+  // ==========================================
+  // DEMANDER UNE COURSE
+  // ==========================================
+  requestRide() {
+    this.router.navigate(['/passenger/search-ride']);
+  }
+
+  // ==========================================
+  // DÉCONNEXION
+  // ==========================================
   async logout() {
     await this.authService.logout();
   }

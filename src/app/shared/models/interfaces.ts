@@ -85,39 +85,48 @@ export interface Address {
 // INTERFACE COURSE (RIDE)
 // ==========================================
 export interface Ride {
-  id: string;                     // ID unique
-  passengerId: string;            // ID du passager
-  passengerName: string;          // Nom du passager
+  id: string;
+  passengerId: string;
+  passengerName: string;
   passengerPhone: string;
+  passengerPhotoURL?: string;
   
-  driverId?: string;              // ID du chauffeur (null si pas accepté)
+  driverId?: string;
   driverName?: string;
   driverPhone?: string;
+  driverPhotoURL?: string;
   vehicleInfo?: VehicleInfo;
   
-  pickupLocation: Location;       // Point de départ
-  dropoffLocation: Location;      // Destination
+  pickupLocation: Location;
+  dropoffLocation: Location;
   
-  status: RideStatus;             // Statut actuel
+  status: RideStatus;
   
-  estimatedPrice: number;         // Prix estimé
-  finalPrice?: number;            // Prix final
+  estimatedPrice: number;
+  finalPrice?: number;
   
-  estimatedDistance: number;      // Distance en km
-  estimatedDuration: number;      // Durée en minutes
+  estimatedDistance: number;
+  actualDistance?: number;
   
-  vehicleType: VehicleType;       // Type demandé
+  estimatedDuration: number;
+  actualDuration?: number;        // ✅ AJOUTE CETTE LIGNE
   
-  requestedAt: Date;              // Date de demande
+  vehicleType: VehicleType;
+  
+  requestedAt: Date;
   acceptedAt?: Date;
   startedAt?: Date;
   completedAt?: Date;
+  cancelledAt?: Date;
   
-  rating?: number;                // Note (1-5)
-  review?: string;                // Commentaire
+  rating?: number;
+  review?: string;
   
   paymentMethod: string;
   paymentStatus: 'pending' | 'completed' | 'failed';
+  
+  cancellationReason?: string;
+  cancelledBy?: 'passenger' | 'driver' | 'system';
 }
 
 // ==========================================

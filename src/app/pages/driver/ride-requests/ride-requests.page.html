@@ -1,13 +1,157 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>ride-requests</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Demandes de courses</ion-title>
+    <ion-badge slot="end" color="danger" *ngIf="pendingRides.length > 0">
+      {{ pendingRides.length }}
+    </ion-badge>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">ride-requests</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  
+  <!-- Rafraîchir -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Recherche de demandes...</p>
+  </div>
+
+  <!-- Aucune demande -->
+  <div *ngIf="!isLoading && pendingRides.length === 0" class="empty-state">
+    <ion-icon name="notifications-outline" class="empty-icon"></ion-icon>
+    <h2>Aucune demande</h2>
+    <p>Les nouvelles demandes apparaîtront ici</p>
+    <ion-text color="medium">
+      <small>Assurez-vous d'être en ligne pour recevoir des demandes</small>
+    </ion-text>
+  </div>
+
+  <!-- Liste des demandes -->
+  <div *ngIf="!isLoading && pendingRides.length > 0" class="requests-container">
+    
+    <ion-card 
+      *ngFor="let ride of pendingRides" 
+      class="ride-request-card"
+    >
+      <!-- En-tête -->
+      <ion-card-header>
+        <div class="card-header-content">
+          <ion-card-title>Nouvelle demande</ion-card-title>
+          <ion-badge color="warning">
+            {{ getTimeAgo(ride.requestedAt) }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <!-- Contenu -->
+      <ion-card-content>
+        
+        <!-- Informations passager -->
+        <div class="passenger-info" *ngIf="ride.passengerName">
+          <ion-icon name="person-outline" color="primary"></ion-icon>
+          <span>{{ ride.passengerName }}</span>
+        </div>
+
+        <!-- Départ -->
+        <div class="location-item">
+          <ion-icon name="navigate-outline" color="success"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Point de départ</small>
+            </ion-text>
+            <p>{{ ride.pickupLocation.address || 'Position de départ' }}</p>
+          </div>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="location-separator"></div>
+
+        <!-- Arrivée -->
+        <div class="location-item">
+          <ion-icon name="location-outline" color="danger"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Destination</small>
+            </ion-text>
+            <p>{{ ride.dropoffLocation.address || 'Destination' }}</p>
+          </div>
+        </div>
+
+        <!-- Informations de la course -->
+        <div class="ride-info">
+          
+          <!-- Prix -->
+          <div class="info-item">
+            <ion-icon name="cash-outline" color="success"></ion-icon>
+            <div>
+              <strong>{{ ride.estimatedPrice }} DT</strong>
+              <p>Prix estimé</p>
+            </div>
+          </div>
+
+          <!-- Distance -->
+          <div class="info-item">
+            <ion-icon name="navigate-outline" color="primary"></ion-icon>
+            <div>
+              <strong>{{ ride.estimatedDistance }} km</strong>
+              <p>Distance</p>
+            </div>
+          </div>
+
+          <!-- Durée -->
+          <div class="info-item">
+            <ion-icon name="time-outline" color="tertiary"></ion-icon>
+            <div>
+              <strong>{{ ride.estimatedDuration }} min</strong>
+              <p>Durée</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Type de véhicule -->
+        <div class="vehicle-type">
+          <ion-icon name="car-outline"></ion-icon>
+          <span>
+            {{ ride.vehicleType === 'economy' ? 'Économique' : 
+               ride.vehicleType === 'comfort' ? 'Confort' : 'Premium' }}
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          
+          <!-- Refuser -->
+          <ion-button 
+            fill="outline" 
+            color="medium"
+            (click)="declineRide(ride)"
+          >
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Ignorer
+          </ion-button>
+
+          <!-- Accepter -->
+          <ion-button 
+            color="success"
+            (click)="acceptRide(ride)"
+          >
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Accepter
+          </ion-button>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
 </ion-content>

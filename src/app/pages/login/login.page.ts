@@ -20,7 +20,7 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
+import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline, carSport } from 'ionicons/icons';
 
 // ==========================================
 // IMPORT DU SERVICE D'AUTHENTIFICATION
@@ -69,7 +69,7 @@ export class LoginPage {
     private toastCtrl: ToastController
   ) {
     // Enregistrer les icônes Ionicons
-    addIcons({ mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline });
+    addIcons({ mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline, carSport });
   }
 
   // ==========================================

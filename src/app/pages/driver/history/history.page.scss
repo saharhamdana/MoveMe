@@ -1,0 +1,235 @@
+// ==========================================
+// STATISTIQUES
+// ==========================================
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: var(--ion-color-light);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  ion-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+    margin: 4px 0 0 0;
+  }
+}
+
+// ==========================================
+// SEGMENT
+// ==========================================
+ion-segment {
+  margin: 16px;
+}
+
+// ==========================================
+// CHARGEMENT
+// ==========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+
+  p {
+    margin-top: 16px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// ÉTAT VIDE
+// ==========================================
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  padding: 20px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 80px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// CONTAINER DES COURSES
+// ==========================================
+.rides-container {
+  padding: 16px;
+}
+
+// ==========================================
+// CARTE DE COURSE
+// ==========================================
+.ride-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .ride-date {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// ==========================================
+// INFO PASSAGER
+// ==========================================
+.passenger-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  span {
+    font-weight: 500;
+  }
+}
+
+// ==========================================
+// LOCALISATION
+// ==========================================
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+
+  ion-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    margin-top: 4px;
+  }
+
+  .location-text {
+    flex: 1;
+
+    small {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+.location-separator {
+  width: 2px;
+  height: 20px;
+  background: var(--ion-color-medium);
+  margin-left: 11px;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+// ==========================================
+// INFO COURSE
+// ==========================================
+.ride-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .stats-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .stat-card {
+    padding: 12px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+
+    h3 {
+      font-size: 16px;
+    }
+
+    p {
+      font-size: 10px;
+    }
+  }
+
+  .ride-info {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

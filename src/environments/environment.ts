@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  googleMapsApiKey: 'AIzaSyA0c8NxgWots86Jt914zbWMkbuHs-uqSWY',
 
   firebase: {          
   apiKey: "AIzaSyBFk-xh0rUNFPlwrLp-1rRJf821_aO3ToA",
@@ -12,6 +13,7 @@ export const environment = {
   storageBucket: "moveme-ea504.firebasestorage.app",
   messagingSenderId: "1066732363715",
   appId: "1:1066732363715:web:b9cd45dc2013e454eee776"
+  
 }
 };
 
@@ -23,3 +25,5 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+// src/environments/environment.ts
+

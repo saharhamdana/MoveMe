@@ -1,13 +1,215 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>earnings</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mes Gains</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">earnings</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <!-- Carte principale des gains -->
+    <ion-card class="main-earnings-card">
+      <ion-card-content>
+        <div class="earnings-header">
+          <ion-icon name="wallet-outline" color="success"></ion-icon>
+          <div>
+            <ion-text color="medium">
+              <small>Gains totaux</small>
+            </ion-text>
+            <h1>{{ earnings.total }} DT</h1>
+          </div>
+        </div>
+
+        <!-- Montant en attente -->
+        <div class="pending-amount" *ngIf="earnings.pending > 0">
+          <ion-icon name="time-outline" color="warning"></ion-icon>
+          <span>{{ earnings.pending }} DT en attente</span>
+        </div>
+
+        <!-- Bouton retrait -->
+        <ion-button 
+          expand="block" 
+          color="success"
+          (click)="requestPayout()"
+          [disabled]="earnings.pending === 0"
+        >
+          <ion-icon name="card-outline" slot="start"></ion-icon>
+          Demander un retrait
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Segment de période -->
+    <ion-segment [(ngModel)]="selectedPeriod" class="period-segment">
+      <ion-segment-button value="today">
+        <ion-label>Aujourd'hui</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="week">
+        <ion-label>Semaine</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="month">
+        <ion-label>Mois</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Statistiques de la période -->
+    <div class="stats-grid">
+      
+      <!-- Gains de la période -->
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="cash-outline" color="success"></ion-icon>
+          <h2>{{ getEarningsForPeriod() }} DT</h2>
+          <p>Gains</p>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Courses -->
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="car-outline" color="primary"></ion-icon>
+          <h2>{{ getRidesForPeriod() }}</h2>
+          <p>Courses</p>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Moyenne par course -->
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="trending-up-outline" color="tertiary"></ion-icon>
+          <h2>{{ getAverageEarningPerRide().toFixed(2) }} DT</h2>
+          <p>Moyenne/Course</p>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- Détails supplémentaires -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Détails</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <ion-list lines="none">
+          
+          <!-- Courses totales -->
+          <ion-item>
+            <ion-icon name="car-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>Courses totales</h3>
+              <p>{{ earnings.ridesCount.total }} courses effectuées</p>
+            </ion-label>
+          </ion-item>
+
+          <!-- Gains cette semaine -->
+          <ion-item>
+            <ion-icon name="calendar-outline" slot="start" color="success"></ion-icon>
+            <ion-label>
+              <h3>Cette semaine</h3>
+              <p>{{ earnings.week }} DT - {{ earnings.ridesCount.week }} courses</p>
+            </ion-label>
+          </ion-item>
+
+          <!-- Gains ce mois -->
+          <ion-item>
+            <ion-icon name="calendar-outline" slot="start" color="tertiary"></ion-icon>
+            <ion-label>
+              <h3>Ce mois</h3>
+              <p>{{ earnings.month }} DT - {{ earnings.ridesCount.month }} courses</p>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Historique des courses récentes -->
+<ion-card *ngIf="getRecentRidesForPeriod().length > 0">
+  <ion-card-header>
+    <ion-card-title>Courses récentes</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list lines="none">
+      <ion-item 
+        *ngFor="let ride of getRecentRidesForPeriod()" 
+        class="ride-history-item"
+      >
+        <div class="ride-history-content">
+          <div class="ride-date">
+            <ion-text color="medium">
+              <small>{{ formatDate(ride.date) }}</small>
+            </ion-text>
+            <ion-text color="medium">
+              <small>{{ formatTime(ride.date) }}</small>
+            </ion-text>
+          </div>
+          
+          <div class="ride-details">
+            <div class="locations">
+              <p class="pickup">
+                <ion-icon name="radio-button-on" color="success"></ion-icon>
+                {{ ride.pickupAddress }}
+              </p>
+              <p class="dropoff">
+                <ion-icon name="location" color="danger"></ion-icon>
+                {{ ride.dropoffAddress }}
+              </p>
+            </div>
+            
+            <div class="ride-meta">
+              <span>
+                <ion-icon name="car-outline"></ion-icon>
+                {{ ride.distance.toFixed(1) }} km
+              </span>
+              <span>
+                <ion-icon name="time-outline"></ion-icon>
+                {{ ride.duration }} min
+              </span>
+            </div>
+          </div>
+          
+          <div class="ride-amount">
+            <ion-text color="success">
+              <strong>{{ ride.amount.toFixed(2) }} DT</strong>
+            </ion-text>
+          </div>
+        </div>
+      </ion-item>
+    </ion-list>
+  </ion-card-content>
+</ion-card>
+
+<!-- Message si pas de courses -->
+<ion-card *ngIf="getRecentRidesForPeriod().length === 0 && !isLoading">
+  <ion-card-content class="no-rides">
+    <ion-icon name="car-outline" color="medium"></ion-icon>
+    <p>Aucune course pour cette période</p>
+  </ion-card-content>
+</ion-card>
+
+    <!-- Conseils -->
+    <ion-card class="tips-card">
+      <ion-card-content>
+        <ion-icon name="bulb-outline" color="warning"></ion-icon>
+        <div>
+          <h3>💡 Conseil</h3>
+          <p>Restez en ligne aux heures de pointe pour maximiser vos gains !</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
 </ion-content>

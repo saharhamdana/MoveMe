@@ -1,13 +1,166 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>history</ion-title>
+<!-- ========================================== -->
+<!-- HEADER -->
+<!-- ========================================== -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Historique</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">history</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<!-- ========================================== -->
+<!-- CONTENU -->
+<!-- ========================================== -->
+<ion-content>
+  
+  <!-- Rafraîchir -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ========================================== -->
+  <!-- STATISTIQUES -->
+  <!-- ========================================== -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <ion-icon name="car-outline" color="primary"></ion-icon>
+      <div>
+        <h3>{{ totalRides }}</h3>
+        <p>Courses</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <ion-icon name="cash-outline" color="success"></ion-icon>
+      <div>
+        <h3>{{ totalEarnings }} DT</h3>
+        <p>Gains</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <ion-icon name="star-outline" color="warning"></ion-icon>
+      <div>
+        <h3>{{ averageRating.toFixed(1) }}</h3>
+        <p>Note moy.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- FILTRES -->
+  <!-- ========================================== -->
+  <ion-segment [(ngModel)]="selectedSegment" (ionChange)="filterRides(selectedSegment)">
+    <ion-segment-button value="all">
+      <ion-label>Toutes</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="completed">
+      <ion-label>Terminées</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="cancelled">
+      <ion-label>Annulées</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- ========================================== -->
+  <!-- CHARGEMENT -->
+  <!-- ========================================== -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- AUCUNE COURSE -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && filteredRides.length === 0" class="empty-state">
+    <ion-icon name="car-outline" class="empty-icon"></ion-icon>
+    <h2>Aucune course</h2>
+    <p>Vos courses apparaîtront ici</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- LISTE DES COURSES -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && filteredRides.length > 0" class="rides-container">
+    
+    <ion-card 
+      *ngFor="let ride of filteredRides" 
+      class="ride-card"
+      (click)="viewRideDetails(ride)"
+      button
+    >
+      <!-- En-tête -->
+      <ion-card-header>
+        <div class="card-header-content">
+          <ion-card-title class="ride-date">
+            {{ formatDate(ride.requestedAt) }}
+          </ion-card-title>
+          <ion-badge [color]="getStatusColor(ride.status)">
+            {{ getStatusText(ride.status) }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <!-- Contenu -->
+      <ion-card-content>
+        
+        <!-- Passager -->
+        <div class="passenger-info">
+          <ion-icon name="person-outline" color="primary"></ion-icon>
+          <span>{{ ride.passengerName }}</span>
+        </div>
+
+        <!-- Départ -->
+        <div class="location-item">
+          <ion-icon name="navigate-outline" color="success"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Départ</small>
+            </ion-text>
+            <p>{{ ride.pickupLocation.address || 'Position de départ' }}</p>
+          </div>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="location-separator"></div>
+
+        <!-- Arrivée -->
+        <div class="location-item">
+          <ion-icon name="location-outline" color="danger"></ion-icon>
+          <div class="location-text">
+            <ion-text color="medium">
+              <small>Arrivée</small>
+            </ion-text>
+            <p>{{ ride.dropoffLocation.address || 'Destination' }}</p>
+          </div>
+        </div>
+
+        <!-- Infos course -->
+        <div class="ride-info">
+          <div class="info-item">
+            <ion-icon name="cash-outline" color="success"></ion-icon>
+            <span>{{ ride.finalPrice || ride.estimatedPrice }} DT</span>
+          </div>
+
+          <div class="info-item">
+            <ion-icon name="navigate-outline" color="primary"></ion-icon>
+            <span>{{ ride.estimatedDistance }} km</span>
+          </div>
+
+          <div class="info-item" *ngIf="ride.actualDuration">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <span>{{ formatDuration(ride.actualDuration) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="ride.rating">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ ride.rating }}/5</span>
+          </div>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
 </ion-content>

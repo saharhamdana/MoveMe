@@ -31,6 +31,11 @@ export const routes: Routes = [
         loadChildren: () => import('./pages/passenger/tabs/tabs.routes').then(m => m.routes)
       },
       {
+        // ✅ ROUTE DEMANDE DE COURSE
+        path: 'search-ride',
+        loadComponent: () => import('./pages/passenger/search-ride/search-ride.page').then(m => m.SearchRidePage)
+      },
+      {
         path: '',
         redirectTo: 'tabs',
         pathMatch: 'full'
@@ -38,7 +43,7 @@ export const routes: Routes = [
     ]
   },
   {
-    // ✅ ROUTES CHAUFFEUR (AJOUTE CETTE SECTION)
+    // ✅ ROUTES CHAUFFEUR
     path: 'driver',
     canActivate: [authGuard, roleGuard],
     data: { role: 'driver' },
@@ -46,6 +51,10 @@ export const routes: Routes = [
       {
         path: 'tabs',
         loadChildren: () => import('./pages/driver/tabs/tabs.routes').then(m => m.routes)
+      },
+      {
+        path: 'ride-requests',
+        loadComponent: () => import('./pages/driver/ride-requests/ride-requests.page').then(m => m.RideRequestsPage)
       },
       {
         path: '',
@@ -57,5 +66,9 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'login'
+  },
+  {
+    path: 'ride-requests',
+    loadComponent: () => import('./pages/driver/ride-requests/ride-requests.page').then(m => m.RideRequestsPage)
   }
 ];

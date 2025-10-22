@@ -1,0 +1,240 @@
+// ==========================================
+// CHARGEMENT
+// ==========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+
+  p {
+    margin-top: 16px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// ÉTAT VIDE
+// ==========================================
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  padding: 20px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 80px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 10px;
+  }
+}
+
+// ==========================================
+// CONTAINER DES DEMANDES
+// ==========================================
+.requests-container {
+  padding: 16px;
+}
+
+// ==========================================
+// CARTE DE DEMANDE
+// ==========================================
+.ride-request-card {
+  margin-bottom: 16px;
+  border-radius: 16px;
+  border: 2px solid var(--ion-color-success);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  ion-card-title {
+    font-size: 18px;
+    color: var(--ion-color-success);
+  }
+}
+
+// ==========================================
+// INFO PASSAGER
+// ==========================================
+.passenger-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  span {
+    font-weight: 500;
+  }
+}
+
+// ==========================================
+// LOCALISATION
+// ==========================================
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+
+  ion-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    margin-top: 4px;
+  }
+
+  .location-text {
+    flex: 1;
+
+    small {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+  }
+}
+
+.location-separator {
+  width: 2px;
+  height: 20px;
+  background: var(--ion-color-medium);
+  margin-left: 11px;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+// ==========================================
+// INFO COURSE
+// ==========================================
+.ride-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+
+    ion-icon {
+      font-size: 28px;
+    }
+
+    strong {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// ==========================================
+// TYPE DE VÉHICULE
+// ==========================================
+.vehicle-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--ion-color-primary-tint);
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  ion-icon {
+    font-size: 24px;
+    color: var(--ion-color-primary);
+  }
+
+  span {
+    font-weight: 500;
+    color: var(--ion-color-primary);
+  }
+}
+
+// ==========================================
+// ACTIONS
+// ==========================================
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+  }
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .ride-info {
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    .info-item {
+      flex-direction: row;
+      justify-content: flex-start;
+      text-align: left;
+    }
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}

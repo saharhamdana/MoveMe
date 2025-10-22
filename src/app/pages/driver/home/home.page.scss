@@ -1,10 +1,24 @@
 // ==========================================
-// CARTE STATUT
+// CONTAINER PRINCIPAL
+// ==========================================
+.home-container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+// ==========================================
+// CARTE STATUT PRINCIPAL
 // ==========================================
 .status-card {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  transition: all 0.3s ease;
+
+  &.online {
+    border: 2px solid var(--ion-color-success);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  }
 }
 
 // ==========================================
@@ -16,27 +30,249 @@
   align-items: center;
   padding: 16px 0;
 
-  h3 {
+  .status-text {
+    flex: 1;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      line-height: 1.4;
+    }
+  }
+
+  .status-switch {
+    --handle-width: 32px;
+    --handle-height: 32px;
+  }
+}
+
+// ==========================================
+// INDICATEUR VISUEL DE STATUT
+// ==========================================
+.status-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  position: relative;
+  height: 80px;
+
+  .status-dot {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--ion-color-medium);
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  &.active .status-dot {
+    background: var(--ion-color-success);
+  }
+
+  // Animation de pulse
+  .pulse-ring {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--ion-color-success);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    z-index: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+// ==========================================
+// STATISTIQUES DU JOUR
+// ==========================================
+.today-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .stat-card {
+    margin: 0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    ion-card-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    ion-icon {
+      font-size: 36px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin: 4px 0 0 0;
+    }
+  }
+}
+
+// ==========================================
+// CARTE DES DEMANDES
+// ==========================================
+.requests-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+.requests-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .requests-icon {
+    position: relative;
+
+    ion-icon {
+      font-size: 40px;
+      color: var(--ion-color-primary);
+    }
+
+    ion-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+    }
+  }
+
+  > div {
+    flex: 1;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+
+  .arrow {
     font-size: 20px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// CARTE HORS LIGNE
+// ==========================================
+.offline-card {
+  border: 2px dashed var(--ion-color-medium);
+  background: #F8F9FA;
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  ion-card-content {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  ion-icon {
+    font-size: 40px;
+    margin-top: 4px;
+  }
+
+  h3 {
+    font-size: 16px;
     font-weight: 600;
     margin: 0 0 8px 0;
   }
 
   p {
-    margin: 0;
     font-size: 14px;
-    color: var(--ion-color-medium);
-  }
-
-  ion-toggle {
-    --handle-width: 28px;
-    --handle-height: 28px;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
   }
 }
 
 // ==========================================
-// GRILLE DE STATISTIQUES
+// CARTE INFO CHAUFFEUR
 // ==========================================
+.driver-info-card {
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  ion-list {
+    background: transparent;
+
+    ion-item {
+      --background: transparent;
+      --padding-start: 0;
+      margin-bottom: 8px;
+
+      h3 {
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+
+      p {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// ==========================================
+// CARTE STATISTIQUES GLOBALES
+// ==========================================
+.global-stats-card {
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -58,40 +294,51 @@
 
   div {
     h4 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 600;
       margin: 0 0 4px 0;
     }
 
     p {
       margin: 0;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--ion-color-medium);
     }
   }
 }
 
 // ==========================================
-// ACTIONS
+// CARTE CONSEILS
 // ==========================================
-.actions {
-  margin: 20px 0;
-}
-
-// ==========================================
-// CARTE HORS LIGNE
-// ==========================================
-.offline-card {
-  border: 2px dashed var(--ion-color-medium);
-  background: transparent;
+.tips-card {
+  border-radius: 12px;
+  background: #FFF9E6;
+  border-left: 4px solid #FFC107;
+  margin-bottom: 20px;
 
   ion-card-content {
-    text-align: center;
-    
-    p {
-      margin: 0;
-      line-height: 1.6;
-    }
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  ion-icon {
+    font-size: 32px;
+    margin-top: 4px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 13px;
+    margin: 0;
+    color: #666;
+    line-height: 1.5;
   }
 }
 
@@ -99,7 +346,9 @@
 // BOUTON DÉCONNEXION
 // ==========================================
 .logout-btn {
-  margin-top: 20px;
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: 600;
   margin-bottom: 20px;
 }
 
@@ -109,5 +358,6 @@
 @media (max-width: 576px) {
   .stats-grid {
     grid-template-columns: 1fr;
-  }
+    gap: 12px;
+  } 
 }

@@ -1,0 +1,232 @@
+// ==========================================
+// CONTAINER PRINCIPAL
+// ==========================================
+.home-container {
+  padding-bottom: 80px;
+}
+
+// ==========================================
+// CARTE DE BIENVENUE
+// ==========================================
+.welcome-card {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+}
+
+.welcome-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .car-icon {
+    font-size: 60px;
+    opacity: 0.3;
+  }
+}
+
+// ==========================================
+// CARTE ACTION PRINCIPALE
+// ==========================================
+.action-card {
+  border-radius: 16px;
+  border: 2px solid var(--ion-color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.action-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--ion-color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 32px;
+      color: white;
+    }
+  }
+
+  .action-text {
+    flex: 1;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: var(--ion-color-primary);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  .arrow {
+    font-size: 24px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ==========================================
+// TITRE DE SECTION
+// ==========================================
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+// ==========================================
+// LISTE
+// ==========================================
+ion-list {
+  background: transparent;
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    margin-bottom: 12px;
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+}
+
+// ==========================================
+// GRILLE DE STATISTIQUES
+// ==========================================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  margin: 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  ion-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  ion-icon {
+    font-size: 32px;
+  }
+
+  h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p {
+    font-size: 11px;
+    color: var(--ion-color-medium);
+    margin: 4px 0 0 0;
+  }
+}
+
+// ==========================================
+// CARTE CONSEILS
+// ==========================================
+.tips-card {
+  border-radius: 12px;
+  background: #FFF9E6;
+  border-left: 4px solid #FFC107;
+  margin-bottom: 20px;
+
+  ion-card-content {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  ion-icon {
+    font-size: 32px;
+    margin-top: 4px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 13px;
+    margin: 0;
+    color: #666;
+    line-height: 1.5;
+  }
+}
+
+// ==========================================
+// BOUTON DÉCONNEXION
+// ==========================================
+.logout-btn {
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .welcome-content {
+    .car-icon {
+      font-size: 40px;
+    }
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

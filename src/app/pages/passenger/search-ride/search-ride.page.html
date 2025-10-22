@@ -1,0 +1,233 @@
+<!-- ==========================================
+     SEARCH RIDE PAGE - DEMANDER UNE COURSE
+     ========================================== -->
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/passenger/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Demander une course</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- ==========================================
+       STATUT GPS
+       ========================================== -->
+  <ion-card *ngIf="isLoadingPosition || locationError" class="gps-status-card">
+    <ion-card-content>
+      
+      <!-- Chargement de la position -->
+      <div *ngIf="isLoadingPosition" class="gps-loading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Récupération de votre position...</p>
+      </div>
+
+      <!-- Erreur de localisation -->
+      <div *ngIf="locationError && !isLoadingPosition" class="gps-error">
+        <ion-icon name="location-outline" color="danger"></ion-icon>
+        <p>{{ locationError }}</p>
+        <ion-button size="small" (click)="retryLocation()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Réessayer
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- ==========================================
+       FORMULAIRE DE RECHERCHE
+       ========================================== -->
+  <ion-card [class.disabled]="!hasPosition">
+    <ion-card-content>
+      
+      <!-- Badge de statut GPS -->
+      <div *ngIf="hasPosition" class="gps-badge">
+        <ion-badge color="success">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          GPS Actif
+        </ion-badge>
+      </div>
+
+      <!-- Départ -->
+      <ion-item lines="full">
+        <ion-icon name="navigate-outline" slot="start" color="success"></ion-icon>
+        <ion-input
+          placeholder="Adresse de départ"
+          [(ngModel)]="pickupAddress"
+          [disabled]="!hasPosition"
+        ></ion-input>
+        <ion-button 
+          slot="end" 
+          fill="clear" 
+          size="small"
+          (click)="useMyLocation()"
+          [disabled]="!hasPosition"
+        >
+          <ion-icon name="locate-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <!-- Arrivée -->
+      <ion-item lines="full">
+        <ion-icon name="location-outline" slot="start" color="danger"></ion-icon>
+        <ion-input
+          placeholder="Adresse d'arrivée"
+          [(ngModel)]="dropoffAddress"
+          [disabled]="!hasPosition"
+        ></ion-input>
+      </ion-item>
+
+      <!-- Recherches récentes -->
+      <div *ngIf="recentSearches.length > 0" class="recent-searches">
+        <p class="section-title">Recherches récentes :</p>
+        <div class="recent-chips">
+          <ion-button 
+            *ngFor="let search of recentSearches" 
+            size="small" 
+            fill="outline"
+            (click)="useRecentSearch(search)"
+          >
+            <ion-icon name="time-outline" slot="start"></ion-icon>
+            {{ search }}
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Type de véhicule -->
+      <ion-item lines="full">
+        <ion-icon name="car-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>Type de véhicule</ion-label>
+        <ion-select 
+          [(ngModel)]="vehicleType" 
+          interface="action-sheet"
+          [disabled]="!hasPosition"
+        >
+          <ion-select-option 
+            *ngFor="let vehicle of vehicleTypes" 
+            [value]="vehicle.value"
+          >
+            {{ vehicle.icon }} {{ vehicle.label }} - {{ vehicle.description }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Moyen de paiement -->
+      <ion-item>
+        <ion-icon name="cash-outline" slot="start" color="success"></ion-icon>
+        <ion-label>Paiement</ion-label>
+        <ion-select 
+          [(ngModel)]="paymentMethod" 
+          interface="action-sheet"
+          [disabled]="!hasPosition"
+        >
+          <ion-select-option value="cash">💵 Espèces</ion-select-option>
+          <ion-select-option value="card">💳 Carte bancaire</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Bouton Calculer -->
+      <ion-button 
+        expand="block" 
+        (click)="calculateEstimation()"
+        [disabled]="!pickupAddress || !dropoffAddress || !hasPosition"
+        class="calculate-button"
+      >
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        Calculer le prix
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- ==========================================
+       ESTIMATION DE LA COURSE
+       ========================================== -->
+  <ion-card *ngIf="showEstimation" class="estimation-card">
+    <ion-card-content>
+      
+      <div class="estimation-header">
+        <h2>{{ getVehicleIcon() }} Estimation de la course</h2>
+        <ion-badge color="primary">{{ getVehicleLabel() }}</ion-badge>
+      </div>
+      
+      <div class="estimation-details">
+        
+        <!-- Distance -->
+        <div class="detail-item">
+          <div class="detail-icon">
+            <ion-icon name="navigate-outline" color="primary"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <p class="detail-label">Distance</p>
+            <p class="detail-value">{{ estimatedDistance.toFixed(1) }} km</p>
+          </div>
+        </div>
+        
+        <!-- Durée -->
+        <div class="detail-item">
+          <div class="detail-icon">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <p class="detail-label">Durée estimée</p>
+            <p class="detail-value">{{ estimatedDuration }} min</p>
+          </div>
+        </div>
+        
+        <!-- Prix -->
+        <div class="detail-item price-item">
+          <div class="detail-icon">
+            <ion-icon name="cash-outline" color="success"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <p class="detail-label">Prix estimé</p>
+            <p class="price-amount">{{ estimatedPrice.toFixed(2) }} DT</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Informations supplémentaires -->
+      <div class="estimation-info">
+        <ion-text color="medium">
+          <p>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Le prix final peut varier selon le trafic et l'itinéraire réel.
+          </p>
+        </ion-text>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="action-buttons">
+        <ion-button 
+          expand="block" 
+          color="success"
+          (click)="confirmRide()"
+          class="confirm-button"
+        >
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Confirmer la demande
+        </ion-button>
+
+        <ion-button 
+          expand="block" 
+          fill="outline"
+          (click)="reset()"
+          class="reset-button"
+        >
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Modifier
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Espacement en bas -->
+  <div style="height: 80px;"></div>
+
+</ion-content>

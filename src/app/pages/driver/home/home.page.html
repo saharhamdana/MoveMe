@@ -1,10 +1,10 @@
 <!-- ========================================== -->
-<!-- HEADER -->
+<!-- HEADER DYNAMIQUE -->
 <!-- ========================================== -->
 <ion-header>
   <ion-toolbar [color]="isOnline ? 'success' : 'medium'">
     <ion-title>
-      {{ isOnline ? '🟢 En ligne' : '🔴 Hors ligne' }}
+      {{ isOnline ? '🟢 EN LIGNE' : '🔴 HORS LIGNE' }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -12,14 +12,19 @@
 <!-- ========================================== -->
 <!-- CONTENU -->
 <!-- ========================================== -->
-<ion-content class="ion-padding">
+<ion-content>
 
-  <div *ngIf="currentUser">
+  <!-- Rafraîchir -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="currentUser" class="home-container">
 
     <!-- ========================================== -->
-    <!-- CARTE STATUT -->
+    <!-- CARTE STATUT PRINCIPAL -->
     <!-- ========================================== -->
-    <ion-card class="status-card">
+    <ion-card class="status-card" [class.online]="isOnline">
       <ion-card-header>
         <ion-card-title>Votre statut</ion-card-title>
       </ion-card-header>
@@ -27,7 +32,7 @@
         
         <!-- Switch Online/Offline -->
         <div class="status-toggle">
-          <div>
+          <div class="status-text">
             <h3>{{ isOnline ? 'En ligne' : 'Hors ligne' }}</h3>
             <p>
               {{ isOnline 
@@ -40,29 +45,102 @@
             [(ngModel)]="isOnline" 
             (ionChange)="toggleOnlineStatus($event)"
             [color]="isOnline ? 'success' : 'medium'"
+            class="status-switch"
           ></ion-toggle>
+        </div>
+
+        <!-- Indicateur visuel -->
+        <div class="status-indicator" [class.active]="isOnline">
+          <div class="pulse-ring" *ngIf="isOnline"></div>
+          <div class="status-dot"></div>
         </div>
 
       </ion-card-content>
     </ion-card>
 
     <!-- ========================================== -->
+    <!-- STATISTIQUES DU JOUR -->
+    <!-- ========================================== -->
+    <div class="today-stats">
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="cash-outline" color="success"></ion-icon>
+          <div>
+            <h3>{{ todayEarnings }} DT</h3>
+            <p>Aujourd'hui</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="car-sport-outline" color="primary"></ion-icon>
+          <div>
+            <h3>{{ todayRides }}</h3>
+            <p>Courses</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DEMANDES EN ATTENTE (SI EN LIGNE) -->
+    <!-- ========================================== -->
+    <ion-card *ngIf="isOnline" class="requests-card" (click)="viewRideRequests()" button>
+      <ion-card-content>
+        <div class="requests-content">
+          <div class="requests-icon">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <ion-badge *ngIf="pendingRides > 0" color="danger">{{ pendingRides }}</ion-badge>
+          </div>
+          <div>
+            <h3>Demandes de courses</h3>
+            <p>{{ pendingRides === 0 ? 'Aucune demande pour le moment' : pendingRides + ' demande(s) en attente' }}</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- MESSAGE SI HORS LIGNE -->
+    <!-- ========================================== -->
+    <ion-card *ngIf="!isOnline" class="offline-card">
+      <ion-card-content>
+        <ion-icon name="moon-outline" color="medium"></ion-icon>
+        <div>
+          <h3>Vous êtes hors ligne</h3>
+          <p>Activez votre statut en ligne pour commencer à recevoir des demandes de courses et augmenter vos gains.</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
     <!-- INFORMATIONS DU CHAUFFEUR -->
     <!-- ========================================== -->
-    <ion-card>
+    <ion-card class="driver-info-card">
       <ion-card-header>
-        <ion-card-title>Bienvenue {{ currentUser.displayName }} 👋</ion-card-title>
+        <ion-card-title>Vos informations</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         
         <ion-list lines="none">
           
+          <!-- Nom -->
+          <ion-item>
+            <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>{{ currentUser.displayName }}</h3>
+              <p>Chauffeur professionnel</p>
+            </ion-label>
+          </ion-item>
+
           <!-- Email -->
           <ion-item>
             <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
             <ion-label>
-              <p>Email</p>
               <h3>{{ currentUser.email }}</h3>
+              <p>Email</p>
             </ion-label>
           </ion-item>
 
@@ -70,8 +148,8 @@
           <ion-item>
             <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
             <ion-label>
-              <p>Téléphone</p>
               <h3>{{ currentUser.phoneNumber }}</h3>
+              <p>Téléphone</p>
             </ion-label>
           </ion-item>
 
@@ -79,17 +157,8 @@
           <ion-item>
             <ion-icon name="star-outline" slot="start" color="warning"></ion-icon>
             <ion-label>
-              <p>Note moyenne</p>
               <h3>⭐ {{ currentUser.rating }}/5</h3>
-            </ion-label>
-          </ion-item>
-
-          <!-- Courses -->
-          <ion-item>
-            <ion-icon name="car-sport-outline" slot="start" color="success"></ion-icon>
-            <ion-label>
-              <p>Courses effectuées</p>
-              <h3>{{ currentUser.totalRides }} courses</h3>
+              <p>{{ currentUser.totalRides }} courses effectuées</p>
             </ion-label>
           </ion-item>
 
@@ -99,11 +168,11 @@
     </ion-card>
 
     <!-- ========================================== -->
-    <!-- STATISTIQUES -->
+    <!-- STATISTIQUES GLOBALES -->
     <!-- ========================================== -->
-    <ion-card *ngIf="driverData">
+    <ion-card *ngIf="driverData" class="global-stats-card">
       <ion-card-header>
-        <ion-card-title>Statistiques</ion-card-title>
+        <ion-card-title>Vos performances</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         
@@ -118,25 +187,25 @@
             </div>
           </div>
 
-          <!-- Gains hebdomadaires -->
+          <!-- Gains semaine -->
           <div class="stat-item">
-            <ion-icon name="cash-outline" color="primary"></ion-icon>
+            <ion-icon name="trending-up-outline" color="primary"></ion-icon>
             <div>
               <h4>{{ driverData.earnings?.weeklyEarnings || 0 }} DT</h4>
               <p>Cette semaine</p>
             </div>
           </div>
 
-          <!-- Courses -->
+          <!-- Courses totales -->
           <div class="stat-item">
             <ion-icon name="car-sport-outline" color="tertiary"></ion-icon>
             <div>
               <h4>{{ driverData.earnings?.totalRides || 0 }}</h4>
-              <p>Courses total</p>
+              <p>Courses totales</p>
             </div>
           </div>
 
-          <!-- Courses hebdomadaires -->
+          <!-- Courses semaine -->
           <div class="stat-item">
             <ion-icon name="time-outline" color="warning"></ion-icon>
             <div>
@@ -151,31 +220,18 @@
     </ion-card>
 
     <!-- ========================================== -->
-    <!-- ACTIONS RAPIDES -->
+    <!-- CONSEILS -->
     <!-- ========================================== -->
-    <div class="actions">
-      
-      <!-- Voir demandes (si en ligne) -->
-      <ion-button 
-        *ngIf="isOnline" 
-        expand="block" 
-        color="primary"
-        (click)="viewRideRequests()"
-      >
-        <ion-icon name="notifications-outline" slot="start"></ion-icon>
-        Demandes de courses ({{ pendingRides }})
-      </ion-button>
-
-      <!-- Message si hors ligne -->
-      <ion-card *ngIf="!isOnline" class="offline-card">
-        <ion-card-content>
-          <ion-text color="medium">
-            <p>Activez votre statut en ligne pour commencer à recevoir des demandes de courses.</p>
-          </ion-text>
-        </ion-card-content>
-      </ion-card>
-
-    </div>
+    <ion-card class="tips-card">
+      <ion-card-content>
+        <ion-icon name="bulb-outline" color="warning"></ion-icon>
+        <div>
+          <h3>💡 Conseil du jour</h3>
+          <p *ngIf="!isOnline">Passez en ligne pour commencer à gagner de l'argent !</p>
+          <p *ngIf="isOnline">Les heures de pointe sont entre 7h-9h et 17h-20h. Restez en ligne pour maximiser vos gains !</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
 
     <!-- ========================================== -->
     <!-- BOUTON DÉCONNEXION -->

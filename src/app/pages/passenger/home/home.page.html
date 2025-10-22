@@ -1,32 +1,150 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Accueil Passager</ion-title>
+    <ion-title>Accueil</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   
-  <ion-card *ngIf="currentUser">
-    <ion-card-content>
-      <h2>Bienvenue {{ currentUser.displayName }} ! 👋</h2>
-      <p>Email: {{ currentUser.email }}</p>
-      <p>Téléphone: {{ currentUser.phoneNumber }}</p>
-      <p>Rôle: <strong>{{ currentUser.role }}</strong></p>
-      <p>Note: ⭐ {{ currentUser.rating }}/5</p>
-    </ion-card-content>
-  </ion-card>
+  <div *ngIf="currentUser" class="home-container">
 
-  <ion-card>
-    <ion-card-content>
-      <ion-icon name="car-sport-outline" class="big-icon"></ion-icon>
-      <h3>Demander une course</h3>
-      <p>Fonctionnalité à venir...</p>
-    </ion-card-content>
-  </ion-card>
+    <!-- ========================================== -->
+    <!-- CARTE DE BIENVENUE -->
+    <!-- ========================================== -->
+    <ion-card class="welcome-card">
+      <ion-card-content>
+        <div class="welcome-content">
+          <div>
+            <h2>Bonjour {{ currentUser.displayName }} ! 👋</h2>
+            <p>Où souhaitez-vous aller aujourd'hui ?</p>
+          </div>
+          <ion-icon name="car-sport-outline" class="car-icon"></ion-icon>
+        </div>
+      </ion-card-content>
+    </ion-card>
 
-  <ion-button expand="block" color="danger" (click)="logout()">
-    <ion-icon name="log-out-outline" slot="start"></ion-icon>
-    Déconnexion
-  </ion-button>
+    <!-- ========================================== -->
+    <!-- BOUTON PRINCIPAL : DEMANDER UNE COURSE -->
+    <!-- ========================================== -->
+    <ion-card class="action-card" button (click)="requestRide()">
+      <ion-card-content>
+        <div class="action-content">
+          <div class="action-icon">
+            <ion-icon name="add-outline"></ion-icon>
+          </div>
+          <div class="action-text">
+            <h3>Demander une course</h3>
+            <p>Trouvez un chauffeur proche de vous</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- INFORMATIONS DU COMPTE -->
+    <!-- ========================================== -->
+    <ion-card>
+      <ion-card-content>
+        <h3 class="section-title">Vos informations</h3>
+        
+        <ion-list lines="none">
+          
+          <!-- Email -->
+          <ion-item>
+            <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <p>Email</p>
+              <h3>{{ currentUser.email }}</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Téléphone -->
+          <ion-item>
+            <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <p>Téléphone</p>
+              <h3>{{ currentUser.phoneNumber }}</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Note -->
+          <ion-item>
+            <ion-icon name="star-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>
+              <p>Note moyenne</p>
+              <h3>⭐ {{ currentUser.rating }}/5</h3>
+            </ion-label>
+          </ion-item>
+
+          <!-- Courses -->
+          <ion-item>
+            <ion-icon name="car-sport-outline" slot="start" color="success"></ion-icon>
+            <ion-label>
+              <p>Courses effectuées</p>
+              <h3>{{ currentUser.totalRides }} courses</h3>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- STATISTIQUES RAPIDES -->
+    <!-- ========================================== -->
+    <div class="stats-grid">
+      
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="time-outline" color="primary"></ion-icon>
+          <div>
+            <h4>0</h4>
+            <p>Courses ce mois</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="cash-outline" color="success"></ion-icon>
+          <div>
+            <h4>0 DT</h4>
+            <p>Dépensé ce mois</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CONSEILS -->
+    <!-- ========================================== -->
+    <ion-card class="tips-card">
+      <ion-card-content>
+        <ion-icon name="bulb-outline" color="warning"></ion-icon>
+        <div>
+          <h3>💡 Astuce</h3>
+          <p>Réservez vos courses à l'avance pour bénéficier de meilleurs tarifs aux heures de pointe !</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========================================== -->
+    <!-- DÉCONNEXION -->
+    <!-- ========================================== -->
+    <ion-button 
+      expand="block" 
+      color="danger" 
+      fill="outline"
+      (click)="logout()"
+      class="logout-btn"
+    >
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Déconnexion
+    </ion-button>
+
+  </div>
 
 </ion-content>

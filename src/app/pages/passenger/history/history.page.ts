@@ -1,7 +1,7 @@
 // ==========================================
 // HISTORY PAGE - HISTORIQUE DES COURSES
 // ==========================================
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -31,7 +31,8 @@ import {
   cashOutline,
   starOutline,
   carOutline,
-  navigateOutline
+  navigateOutline,
+  personOutline
 } from 'ionicons/icons';
 
 // ==========================================
@@ -73,12 +74,14 @@ export class HistoryPage implements OnInit {
   // ==========================================
   rides: Ride[] = [];              // Liste des courses
   isLoading: boolean = true;       // État de chargement
-  currentUserId: string = '';      // ID de l'utilisateur actuel
+  currentUserId: string = ''; 
+       // ID de l'utilisateur actuel
 
   // Injection des services
   private authService = inject(AuthService);
   private database = inject(Database);
   private router = inject(Router);
+  private zone = inject(NgZone);
 
   constructor() {
     // Enregistrer les icônes
@@ -88,7 +91,8 @@ export class HistoryPage implements OnInit {
       cashOutline, 
       starOutline,
       carOutline,
-      navigateOutline
+      navigateOutline,
+      personOutline
     });
   }
 
@@ -107,49 +111,43 @@ export class HistoryPage implements OnInit {
   // ==========================================
   // CHARGER LES COURSES
   // ==========================================
-  loadRides() {
+   loadRides() {
     this.isLoading = true;
-    
-    // Référence à la collection rides dans Realtime Database
     const ridesRef = ref(this.database, 'rides');
-    
-    // Query pour récupérer uniquement les courses de cet utilisateur
-    // Note: En Realtime Database, on doit filtrer côté client
-    // Pour une vraie app, il faudrait structurer différemment
+
     onValue(ridesRef, (snapshot) => {
-      const ridesData: Ride[] = [];
-      
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-          const ride = childSnapshot.val() as Ride;
-          
-          // Filtrer seulement les courses de cet utilisateur
-          if (ride.passengerId === this.currentUserId) {
-            ridesData.push({
-              ...ride,
-              id: childSnapshot.key!,
-              // Convertir les timestamps en dates
-              requestedAt: ride.requestedAt ? new Date(ride.requestedAt) : new Date(),
-              completedAt: ride.completedAt ? new Date(ride.completedAt) : undefined
-            });
-          }
-        });
-        
-        // Trier par date décroissante (plus récent en premier)
-        this.rides = ridesData.sort((a, b) => 
-          b.requestedAt.getTime() - a.requestedAt.getTime()
-        );
-      } else {
-        this.rides = [];
-      }
-      
-      this.isLoading = false;
-      console.log('✅ Rides loaded:', this.rides.length);
+      this.zone.run(() => { // ✅ Forcer l’exécution dans le contexte Angular
+        const ridesData: Ride[] = [];
+
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => {
+            const ride = childSnapshot.val() as Ride;
+            if (ride.passengerId === this.currentUserId) {
+              ridesData.push({
+                ...ride,
+                id: childSnapshot.key!,
+                requestedAt: ride.requestedAt ? new Date(ride.requestedAt) : new Date(),
+                completedAt: ride.completedAt ? new Date(ride.completedAt) : undefined
+              });
+            }
+          });
+
+          this.rides = ridesData.sort((a, b) => 
+            b.requestedAt.getTime() - a.requestedAt.getTime()
+          );
+        } else {
+          this.rides = [];
+        }
+
+        this.isLoading = false;
+        console.log('✅ Rides loaded:', this.rides.length);
+      });
     }, (error) => {
       console.error('❌ Error loading rides:', error);
       this.isLoading = false;
     });
   }
+
 
   // ==========================================
   // RAFRAÎCHIR LA LISTE

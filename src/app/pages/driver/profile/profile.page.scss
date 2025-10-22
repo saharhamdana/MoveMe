@@ -1,0 +1,156 @@
+// ==========================================
+// CONTAINER PRINCIPAL
+// ==========================================
+.profile-container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+// ==========================================
+// CARTE PROFIL
+// ==========================================
+.profile-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    margin-right: 16px;
+
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+  }
+
+  .profile-info {
+    flex: 1;
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      ion-icon {
+        font-size: 18px;
+      }
+
+      span {
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      small {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// ==========================================
+// LISTES
+// ==========================================
+ion-list {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+
+  ion-list-header {
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  ion-item {
+    --padding-start: 16px;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 13px;
+      color: var(--ion-color-medium);
+    }
+
+    .warning-text {
+      color: var(--ion-color-warning);
+    }
+  }
+}
+
+// ==========================================
+// CONTAINER DE DÉCONNEXION
+// ==========================================
+.logout-container {
+  padding: 0 0 20px 0;
+
+  ion-button {
+    --border-radius: 12px;
+    height: 50px;
+    font-weight: 600;
+  }
+}
+
+// ==========================================
+// VERSION DE L'APP
+// ==========================================
+.app-version {
+  text-align: center;
+  padding: 20px 0;
+
+  small {
+    font-size: 12px;
+  }
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 576px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+
+    .profile-avatar {
+      margin-right: 0;
+      margin-bottom: 16px;
+    }
+
+    .profile-info {
+      .rating {
+        justify-content: center;
+      }
+    }
+  }
+}
