@@ -1,5 +1,6 @@
 // ==========================================
 // EARNINGS PAGE CHAUFFEUR - GAINS ET STATISTIQUES
+// VERSION CORRIGÉE AVEC CAPACITOR
 // ==========================================
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -38,9 +39,13 @@ import {
   carOutline,
   chevronForwardOutline,
   bulbOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  reloadOutline,
+  location,
+  radioButtonOn
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth.service';
+import { CapacitorService } from '../../../core/services/capacitor.service';
 import { Database, ref, onValue, off, query, orderByChild, equalTo, get } from '@angular/fire/database';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -67,8 +72,17 @@ interface RideEarning {
   dropoffAddress: string;
   distance: number;
   duration: number;
+  status: string;
 }
 
+/**
+ * Page des gains du chauffeur
+ * Utilise Capacitor pour :
+ * - Feedback tactile lors des actions
+ * - Rafraîchissement pull-to-refresh
+ * - Sauvegarder les préférences d'affichage
+ * - Notifications des gains
+ */
 @Component({
   selector: 'app-earnings',
   templateUrl: './earnings.page.html',
@@ -126,6 +140,7 @@ export class EarningsPage implements OnInit, OnDestroy {
 
   // Injection des services
   private authService = inject(AuthService);
+  private capacitorService = inject(CapacitorService);
   private database = inject(Database);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
@@ -142,19 +157,52 @@ export class EarningsPage implements OnInit, OnDestroy {
       carOutline,
       chevronForwardOutline,
       bulbOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      reloadOutline,
+      location,
+      radioButtonOn
     });
   }
 
   // ==========================================
   // INITIALISATION
   // ==========================================
-  ngOnInit() {
+  async ngOnInit() {
+    console.log('💰 Initialisation EarningsPage');
+    
+    // Feedback tactile
+    await this.capacitorService.vibrate();
+
     const user = this.authService.currentUser;
     if (user) {
       this.currentUserId = user.uid;
-      this.loadEarnings();
+      await this.loadEarnings();
+      
+      // Charger la période sauvegardée
+      await this.loadSavedPeriod();
+      
+      // Écouter les changements en temps réel
+      this.listenToRidesChanges();
     }
+  }
+
+  // ==========================================
+  // ÉCOUTER LES CHANGEMENTS EN TEMPS RÉEL
+  // ==========================================
+  
+  /**
+   * Écoute les changements de courses en temps réel
+   * Met à jour automatiquement les gains
+   */
+  listenToRidesChanges() {
+    const ridesRef = ref(this.database, 'rides');
+    
+    onValue(ridesRef, async (snapshot) => {
+      if (snapshot.exists()) {
+        console.log('🔄 Mise à jour des courses détectée');
+        await this.loadEarnings();
+      }
+    });
   }
 
   // ==========================================
@@ -164,47 +212,53 @@ export class EarningsPage implements OnInit, OnDestroy {
     this.isLoading = true;
     
     try {
-      // Charger les données du chauffeur
-      const driverRef = ref(this.database, `drivers/${this.currentUserId}`);
-      const driverSnapshot = await get(driverRef);
+      // Charger les courses du chauffeur
+      await this.loadDriverRides();
       
-      if (driverSnapshot.exists()) {
-        const driverData = driverSnapshot.val();
-        
-        // Charger les courses complétées
-        await this.loadCompletedRides();
-        
-        // Calculer les gains
-        this.calculateEarnings();
-        
-        // Si des données existent déjà dans Firebase, les utiliser
-        if (driverData.earnings) {
-          this.earnings.pending = driverData.earnings.pendingAmount || 0;
-        }
-        
-        console.log('✅ Earnings loaded:', this.earnings);
+      // Calculer les gains
+      this.calculateEarnings();
+      
+      // Sauvegarder dans le cache local
+      await this.capacitorService.setPreference('lastEarnings', this.earnings);
+      
+      console.log('✅ Earnings loaded:', this.earnings);
+      
+      // Notification si gains > 0
+      if (this.earnings.total > 0) {
+        await this.capacitorService.showToast(
+          `💰 Total: ${this.earnings.total.toFixed(2)} DT`,
+          'short'
+        );
       }
+      
     } catch (error) {
       console.error('❌ Error loading earnings:', error);
-      this.showToast('Erreur lors du chargement des gains', 'danger');
+      
+      // Essayer de charger depuis le cache
+      const cachedEarnings = await this.capacitorService.getPreference('lastEarnings');
+      if (cachedEarnings) {
+        this.earnings = cachedEarnings;
+        await this.capacitorService.showToast('📦 Données chargées du cache', 'short');
+      } else {
+        await this.capacitorService.showToast('❌ Erreur de chargement', 'short');
+      }
     } finally {
       this.isLoading = false;
     }
   }
 
   // ==========================================
-  // CHARGER LES COURSES COMPLÉTÉES
+  // CHARGER LES COURSES DU CHAUFFEUR
   // ==========================================
-  async loadCompletedRides() {
+  
+  /**
+   * Charge TOUTES les courses du chauffeur (pas seulement completed)
+
+   */
+  async loadDriverRides() {
     try {
       const ridesRef = ref(this.database, 'rides');
-      const completedQuery = query(
-        ridesRef,
-        orderByChild('driverId'),
-        equalTo(this.currentUserId)
-      );
-      
-      const snapshot = await get(completedQuery);
+      const snapshot = await get(ridesRef);
       
       if (snapshot.exists()) {
         this.recentRides = [];
@@ -213,27 +267,61 @@ export class EarningsPage implements OnInit, OnDestroy {
         Object.keys(ridesData).forEach(key => {
           const ride = ridesData[key];
           
-          // Ne prendre que les courses complétées
-          if (ride.status === 'completed' && ride.completedAt) {
-            this.recentRides.push({
-              id: key,
-              date: new Date(ride.completedAt),
-              amount: ride.fare || ride.estimatedPrice || 0,
-              pickupAddress: ride.pickupLocation?.address || 'Adresse inconnue',
-              dropoffAddress: ride.dropoffLocation?.address || 'Adresse inconnue',
-              distance: ride.estimatedDistance || 0,
-              duration: ride.estimatedDuration || 0
-            });
+         
+          if (ride.driverId === this.currentUserId) {
+            
+         
+            const validStatuses = ['completed', 'started', 'driver-arriving', 'accepted'];
+            
+            if (validStatuses.includes(ride.status)) {
+              
+              // Date de la course (utiliser différentes propriétés selon le statut)
+              let rideDate = new Date();
+              if (ride.completedAt) {
+                rideDate = new Date(ride.completedAt);
+              } else if (ride.startedAt) {
+                rideDate = new Date(ride.startedAt);
+              } else if (ride.acceptedAt) {
+                rideDate = new Date(ride.acceptedAt);
+              } else if (ride.requestedAt) {
+                rideDate = new Date(ride.requestedAt);
+              }
+
+              // ✅ CORRECTION: Utiliser le prix estimé si pas de prix final
+              const amount = ride.finalPrice || ride.estimatedPrice || 0;
+
+              this.recentRides.push({
+                id: key,
+                date: rideDate,
+                amount: amount,
+                pickupAddress: ride.pickupLocation?.address || 'Adresse inconnue',
+                dropoffAddress: ride.dropoffLocation?.address || 'Adresse inconnue',
+                distance: ride.estimatedDistance || 0,
+                duration: ride.actualDuration || ride.estimatedDuration || 0,
+                status: ride.status
+              });
+            }
           }
         });
         
         // Trier par date (plus récent d'abord)
         this.recentRides.sort((a, b) => b.date.getTime() - a.date.getTime());
         
-        console.log('✅ Loaded', this.recentRides.length, 'completed rides');
+        console.log('✅ Loaded', this.recentRides.length, 'rides for driver');
+        
+        // Debug: Afficher les courses chargées
+        if (this.recentRides.length > 0) {
+          console.log('📊 Courses chargées:', this.recentRides.map(r => ({
+            status: r.status,
+            amount: r.amount,
+            date: r.date
+          })));
+        }
+      } else {
+        console.log('⚠️ Aucune course trouvée dans Firebase');
       }
     } catch (error) {
-      console.error('❌ Error loading completed rides:', error);
+      console.error('❌ Error loading driver rides:', error);
     }
   }
 
@@ -252,7 +340,7 @@ export class EarningsPage implements OnInit, OnDestroy {
       week: 0,
       month: 0,
       total: 0,
-      pending: this.earnings.pending, // Garder la valeur pending
+      pending: 0,
       ridesCount: {
         today: 0,
         week: 0,
@@ -266,9 +354,14 @@ export class EarningsPage implements OnInit, OnDestroy {
       const rideDate = ride.date;
       const amount = ride.amount;
       
-      // Total
+      // ✅ Total (toutes les courses)
       this.earnings.total += amount;
       this.earnings.ridesCount.total++;
+      
+      // ✅ Courses non complétées = pending
+      if (ride.status !== 'completed') {
+        this.earnings.pending += amount;
+      }
       
       // Aujourd'hui
       if (rideDate >= todayStart) {
@@ -293,8 +386,30 @@ export class EarningsPage implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // OBTENIR LES GAINS SELON LA PÉRIODE
+  // GESTION DES PÉRIODES
   // ==========================================
+  
+  /**
+   * Charge la période sauvegardée
+   */
+  async loadSavedPeriod() {
+    const saved = await this.capacitorService.getPreference('selectedPeriod');
+    if (saved) {
+      this.selectedPeriod = saved;
+    }
+  }
+
+  /**
+   * Sauvegarde la période sélectionnée
+   */
+  async onPeriodChange() {
+    await this.capacitorService.vibrate();
+    await this.capacitorService.setPreference('selectedPeriod', this.selectedPeriod);
+  }
+
+  /**
+   * Obtenir les gains selon la période
+   */
   getEarningsForPeriod(): number {
     switch(this.selectedPeriod) {
       case 'today':
@@ -308,9 +423,9 @@ export class EarningsPage implements OnInit, OnDestroy {
     }
   }
 
-  // ==========================================
-  // OBTENIR LES COURSES SELON LA PÉRIODE
-  // ==========================================
+  /**
+   * Obtenir le nombre de courses selon la période
+   */
   getRidesForPeriod(): number {
     switch(this.selectedPeriod) {
       case 'today':
@@ -324,18 +439,18 @@ export class EarningsPage implements OnInit, OnDestroy {
     }
   }
 
-  // ==========================================
-  // CALCULER LE GAIN MOYEN PAR COURSE
-  // ==========================================
+  /**
+   * Calculer le gain moyen par course
+   */
   getAverageEarningPerRide(): number {
     const earnings = this.getEarningsForPeriod();
     const rides = this.getRidesForPeriod();
     return rides > 0 ? earnings / rides : 0;
   }
 
-  // ==========================================
-  // OBTENIR LES COURSES RÉCENTES POUR LA PÉRIODE
-  // ==========================================
+  /**
+   * Obtenir les courses récentes pour la période
+   */
   getRecentRidesForPeriod(): RideEarning[] {
     const now = new Date();
     let startDate: Date;
@@ -363,25 +478,42 @@ export class EarningsPage implements OnInit, OnDestroy {
   // RAFRAÎCHIR
   // ==========================================
   async handleRefresh(event: any) {
+    // Feedback tactile
+    await this.capacitorService.vibrateLight();
+    
     await this.loadEarnings();
+    
     event.target.complete();
+    
+    await this.capacitorService.showToast('🔄 Mis à jour', 'short');
   }
 
   // ==========================================
   // DEMANDER UN RETRAIT
   // ==========================================
   async requestPayout() {
-    if (this.earnings.pending === 0) {
-      this.showToast('Aucun montant disponible pour le retrait', 'warning');
+    // Feedback tactile
+    await this.capacitorService.vibrateMedium();
+    
+    if (this.earnings.pending === 0 && this.earnings.total === 0) {
+      await this.capacitorService.showToast(
+        '⚠️ Aucun montant disponible pour le retrait',
+        'short'
+      );
       return;
     }
+    
+    // Utiliser le total si pending est 0
+    const amountToWithdraw = this.earnings.pending > 0 
+      ? this.earnings.pending 
+      : this.earnings.total;
     
     const alert = await this.alertCtrl.create({
       header: '💳 Demande de retrait',
       message: `
         <div style="text-align: left; line-height: 1.8;">
           <p><strong>Montant à retirer:</strong></p>
-          <h2 style="color: #2dd36f; margin: 12px 0;">${this.earnings.pending.toFixed(2)} DT</h2>
+          <h2 style="color: #2dd36f; margin: 12px 0;">${amountToWithdraw.toFixed(2)} DT</h2>
           
           <p style="margin-top: 16px;"><strong>Informations:</strong></p>
           <ul style="margin-left: 20px; font-size: 0.9em;">
@@ -398,12 +530,15 @@ export class EarningsPage implements OnInit, OnDestroy {
       buttons: [
         {
           text: 'Annuler',
-          role: 'cancel'
+          role: 'cancel',
+          handler: async () => {
+            await this.capacitorService.vibrate();
+          }
         },
         {
           text: 'Confirmer',
           handler: async () => {
-            await this.processPayout();
+            await this.processPayout(amountToWithdraw);
           }
         }
       ]
@@ -415,7 +550,7 @@ export class EarningsPage implements OnInit, OnDestroy {
   // ==========================================
   // TRAITER LE RETRAIT
   // ==========================================
-  async processPayout() {
+  async processPayout(amount: number) {
     const loading = await this.loadingCtrl.create({
       message: 'Traitement de la demande...',
       spinner: 'crescent'
@@ -423,15 +558,13 @@ export class EarningsPage implements OnInit, OnDestroy {
     await loading.present();
     
     try {
-      // TODO: Implémenter la logique de retrait avec votre backend
-      // Pour l'instant, on simule juste le processus
-      
+      // Simulation du traitement
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Créer une demande de paiement dans Firebase
+      // TODO: Créer une demande de paiement dans Firebase
       const payoutRequest = {
         driverId: this.currentUserId,
-        amount: this.earnings.pending,
+        amount: amount,
         status: 'pending',
         requestedAt: new Date().toISOString(),
         method: 'bank_transfer'
@@ -441,13 +574,15 @@ export class EarningsPage implements OnInit, OnDestroy {
       
       await loading.dismiss();
       
+      // Vibration forte de succès
+      await this.capacitorService.vibrateHeavy();
+      
       // Afficher une confirmation
       const successAlert = await this.alertCtrl.create({
         header: '✅ Demande envoyée',
         message: `
           <div style="text-align: center; line-height: 1.8;">
-            <ion-icon name="checkmark-circle-outline" style="font-size: 64px; color: #2dd36f;"></ion-icon>
-            <p style="margin-top: 16px;">Votre demande de retrait de <strong>${this.earnings.pending.toFixed(2)} DT</strong> a été envoyée avec succès.</p>
+            <p style="margin-top: 16px;">Votre demande de retrait de <strong>${amount.toFixed(2)} DT</strong> a été envoyée avec succès.</p>
             <p style="color: #666; font-size: 0.9em; margin-top: 12px;">
               Vous recevrez un email de confirmation sous peu.
             </p>
@@ -458,18 +593,22 @@ export class EarningsPage implements OnInit, OnDestroy {
       
       await successAlert.present();
       
-      // Réinitialiser le montant en attente
-      this.earnings.pending = 0;
+      // Toast de confirmation
+      await this.capacitorService.showToast('✅ Demande envoyée', 'short');
+      
+      // Recharger les gains
+      await this.loadEarnings();
       
     } catch (error) {
       await loading.dismiss();
       console.error('❌ Error processing payout:', error);
-      this.showToast('Erreur lors du traitement de la demande', 'danger');
+      await this.capacitorService.showToast('❌ Erreur de traitement', 'short');
+      await this.capacitorService.vibrateMedium();
     }
   }
 
   // ==========================================
-  // FORMATER LA DATE
+  // FORMATERS
   // ==========================================
   formatDate(date: Date): string {
     const today = new Date();
@@ -488,14 +627,24 @@ export class EarningsPage implements OnInit, OnDestroy {
     }
   }
 
-  // ==========================================
-  // FORMATER L'HEURE
-  // ==========================================
   formatTime(date: Date): string {
     return date.toLocaleTimeString('fr-FR', { 
       hour: '2-digit', 
       minute: '2-digit' 
     });
+  }
+
+  /**
+   * Retourne le badge de statut de la course
+   */
+  getStatusBadge(status: string): string {
+    switch (status) {
+      case 'completed': return '✅';
+      case 'started': return '🚗';
+      case 'driver-arriving': return '🏃';
+      case 'accepted': return '👍';
+      default: return '⏳';
+    }
   }
 
   // ==========================================
@@ -515,11 +664,13 @@ export class EarningsPage implements OnInit, OnDestroy {
   // NETTOYAGE
   // ==========================================
   ngOnDestroy() {
+    console.log('🛑 Destruction EarningsPage');
+    
     this.subscriptions.forEach(sub => sub.unsubscribe());
     
     if (this.currentUserId) {
-      const driverRef = ref(this.database, `drivers/${this.currentUserId}`);
-      off(driverRef);
+      const ridesRef = ref(this.database, 'rides');
+      off(ridesRef);
     }
   }
 }
